@@ -1,0 +1,122 @@
+Sub CreatePivotTable()
+
+'Declare Variables
+
+Dim PSheet As Worksheet
+
+Dim DSheet As Worksheet
+
+Dim PCache As PivotCache
+
+Dim PTable As PivotTable
+
+Dim PRange As Range
+
+Dim LastRow As Long
+
+Dim LastCol As Long
+
+
+'Insert a New Blank Worksheet
+
+On Error Resume Next
+
+    Application.DisplayAlerts = False
+    
+    Worksheets("PivotTable").Delete
+    
+    Sheets.Add Before:=ActiveSheet
+    
+    ActiveSheet.Name = "PivotTable"
+    
+    Application.DisplayAlerts = True
+    
+    Set PSheet = Worksheets("PivotTable")
+    
+    Set DSheet = Worksheets("Sheet1")
+
+'Define Data Range
+
+    LastRow = DSheet.Cells(Rows.Count, 1).End(xlUp).Row
+    
+    LastCol = DSheet.Cells(1, Columns.Count).End(xlToLeft).Column
+    
+    Set PRange = DSheet.Cells(1, 1).Resize(LastRow, LastCol)
+
+'Define Pivot Cache
+
+    Set PCache = ActiveWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=PRange).CreatePivotTable(TableDestination:=PSheet.Cells(1, 1), TableName:="QueueReport")
+
+'Insert Blank Pivot Table
+
+    Set PTable = PCache.CreatePivotTable(TableDestination:=PSheet.Cells(1, 1), TableName:="QueueReport")
+
+'Insert Row Fields
+
+With ActiveSheet.PivotTables("QueueReport").PivotFields("Item Status")
+
+.Orientation = xlRowField
+
+.Position = 1
+
+End With
+
+ 
+
+With ActiveSheet.PivotTables("QueueReport").PivotFields("Status")
+
+.Orientation = xlRowField
+
+.Position = 2
+
+End With
+
+ 
+
+'Insert Column Fields
+
+With ActiveSheet.PivotTables("QueueReport").PivotFields("ItemKey Count")
+
+.Orientation = xlColumnField
+
+.Position = 1
+
+End With
+
+ 
+
+'Insert Data Field
+
+With ActiveSheet.PivotTables("QueueReport").PivotFields("ItemKey")
+
+.Orientation = xlDataField
+
+.Position = 1
+
+.Function = xlCount
+
+.NumberFormat = "#,##0"
+
+.Name = "No. of Items "
+
+End With
+
+ 
+
+'Format Pivot Table
+
+    ActiveSheet.PivotTables("QueueReport").ShowTableStyleRowStripes = True
+    
+    ActiveSheet.PivotTables("QueueReport").TableStyle2 = "PivotStyleMedium9"
+
+'Create Bar Graph from Pivot Table
+
+    ActiveSheet.Shapes.AddChart.Select
+    ActiveChart.SetSourceData Source:=Range("'PivotTable'!$A$:$B$")
+    ActiveChart.ChartType = xlBarClustered
+
+'Save Workbook As
+
+'ActiveWorkbook.SaveAs Filename:="QueueReport"
+
+End Sub

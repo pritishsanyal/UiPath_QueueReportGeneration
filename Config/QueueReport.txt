@@ -1,0 +1,23 @@
+Sub Macro1()
+'
+' Macro1 Macro
+'
+
+'
+    Sheets.Add
+    ActiveWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:= _
+        "Queue Report!R1C1:R4C9", Version:=6).CreatePivotTable TableDestination:= _
+        "Sheet2!R3C1", TableName:="PivotTable19", DefaultVersion:=6
+    Sheets("Sheet2").Select
+    Cells(3, 1).Select
+    With ActiveSheet.PivotTables("PivotTable19").PivotFields("ExceptionDetails")
+        .Orientation = xlRowField
+        .Position = 1
+    End With
+    ActiveSheet.PivotTables("PivotTable19").AddDataField ActiveSheet.PivotTables( _
+        "PivotTable19").PivotFields("ExceptionDetails"), "Count of ExceptionDetails", _
+        xlCount
+    ActiveSheet.Shapes.AddChart2(201, xlColumnClustered).Select
+    ActiveChart.SetSourceData Source:=Range("[testexcel.xlsx]Sheet2!PivotTable19" _
+        )
+End Sub
